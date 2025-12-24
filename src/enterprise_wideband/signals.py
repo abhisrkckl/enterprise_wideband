@@ -91,9 +91,8 @@ def createfourierdesignmatrix_red_wideband(
     Ft, Ffreqs = createfourierdesignmatrix_red(
         toas, nmodes, Tspan, logf, fmin, fmax, pshift, modes, pseed
     )
-    F = np.zeros((2 * Ft.shape[0], Ft.shape[1]))
-    F[: Ft.shape[0], :] = Ft
-    return F, Ffreqs
+    Ft[Ft.shape[0]:, :] = 0
+    return Ft, Ffreqs
 
 
 @function
@@ -113,7 +112,5 @@ def createfourierdesignmatrix_dm_wideband(
     Ft, Ffreqs = createfourierdesignmatrix_dm(
         toas, freqs, nmodes, Tspan, pshift, fref, logf, fmin, fmax, modes
     )
-    F = np.empty((2 * Ft.shape[0], Ft.shape[1]))
-    F[: Ft.shape[0], :] = Ft
-    F[Ft.shape[0] :, :] = Ft * (freqs**2 / DMconst_value)[:, None]
-    return F, Ffreqs
+    Ft[Ft.shape[0] :, :] *= (freqs**2 / DMconst_value)[:, None]
+    return Ft, Ffreqs
