@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "enterprise_wideband"
+version = "0.0.0"
+description = "ENTERPRISE extensions for the wideband timing paradigm"
+keywords = ["astronomy", "astrophysics", "pulsar", "gravitational wave"]
+
+authors = [{name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"}]
+maintainers = [{name = "Abhimanyu Susobhanan", email = "abhisrkckl@gmail.com"}]
+
+requires-python = ">=3.10"
+dependencies = [
+    "enterprise-pulsar",
+    "pint-pulsar"
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "License :: OSI Approved :: GNU General Public License Version 3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://github.com/abhisrkckl/enterprise_wideband"
+
+[tool.setuptools]
+zip-safe = false
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"*" = ["*.*"]
+
+[tool.distutils.bdist_wheel]
+universal = 0
+
+[tool.aliases]
+test = "pytest"
