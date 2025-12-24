@@ -29,7 +29,13 @@ class WidebandPulsar(PintPulsar):
         )
         self._wideband_designmatrix = model.wideband_designmatrix(toas)[0].astype(float)
 
-        self._wideband_isort = np.append(self._isort, self.isort)
+        self._wideband_isort = np.append(self._isort, self.isort + len(self._toas))
+
+        self._wideband_toas = np.append(self._toas, self._toas)
+
+    @property
+    def toas(self):
+        return self._wideband_toas[self._wideband_isort]
 
     @property
     def wideband_residuals(self):

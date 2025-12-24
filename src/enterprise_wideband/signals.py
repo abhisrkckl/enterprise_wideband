@@ -9,6 +9,7 @@ from enterprise.signals.utils import (
     tm_prior,
 )
 from enterprise.signals.white_signals import WhiteNoise
+from enterprise.signals.signal_base import function
 from pint import DMconst, dmu
 
 
