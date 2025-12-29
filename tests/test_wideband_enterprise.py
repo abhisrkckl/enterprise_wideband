@@ -101,3 +101,33 @@ def test_simple_spna(psr: WidebandPulsar):
 
     assert np.isfinite(pta.get_lnprior(x0))
     assert np.isfinite(pta.get_lnlikelihood(x0))
+
+
+def test_corrnoise_spna(psr: WidebandPulsar):
+    tm = WidebandTimingModel()
+    wn = WidebandMeasurementNoise(
+        efac=Uniform(0.1, 2.5),
+        log10_t2equad=Uniform(-8, -4),
+        dmefac=Uniform(0.5, 1.5),
+        log10_dmequad=Uniform(-8, -3),
+        selection=Selection(no_selection),
+        name="white_noise",
+    )
+    arn = achromatic_red_noise_powerlaw_block()
+    dmn = dm_noise_powerlaw_block()
+
+    model = tm + wn + arn + dmn
+
+    pta = PTA([model(psr)])
+    assert len(pta.param_names) == 8
+
+    x0 = np.array([p.sample() for p in pta.params])
+    x0_dict = pta.map_params(x0)
+
+    n = pta.get_residuals()[0].size
+    p = pta.get_phiinv(x0_dict)[0].size
+    assert pta.get_ndiag(x0_dict)[0].size == n
+    assert pta.get_basis(x0_dict)[0].shape == (n, p)
+
+    assert np.isfinite(pta.get_lnprior(x0))
+    assert np.isfinite(pta.get_lnlikelihood(x0))
