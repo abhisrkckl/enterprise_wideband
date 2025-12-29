@@ -51,12 +51,8 @@ def WidebandMeasurementNoise(
     BaseClass = WhiteNoise(varianceFunction, selection=selection, name=name)
 
     class MeasurementNoise(BaseClass):
-        signal_name = "wideband_measurement_noise"
-        signal_id = (
-            "wideband_measurement_noise_" + name
-            if name
-            else "wideband_measurement_noise"
-        )
+        signal_name = "wideband_white_noise"
+        signal_id = name
 
     return MeasurementNoise
 

@@ -40,7 +40,8 @@ jobs:
           pytest tests \
             --cov=abcd \
             --cov-report=term-missing \
-            --cov-report=xml
+            --cov-report=xml \
+            --verbose
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
