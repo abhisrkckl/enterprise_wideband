@@ -7,6 +7,9 @@ from pint.toa import TOAs
 
 
 class WidebandPulsar(PintPulsar):
+    """Represents a wideband pulsar dataset read using PINT. The residuals, measurement
+    uncertainties, and the design matrix also include elements corresponding to the wideband 
+    DM measurements."""
     def __init__(
         self,
         toas: TOAs,
@@ -37,22 +40,28 @@ class WidebandPulsar(PintPulsar):
 
     @property
     def toas(self):
+        """The MJD corresponding to each TOA. There are two measurements per TOA,
+        so this array contains two copies of the TOA epochs."""
         return self._wideband_toas[self._wideband_isort]
 
     @property
     def freqs(self):
+        """The observing frequency corresponding to each TOA. There are to measurements
+        per TOA, so this array contains two copies of the frequencies."""
         return self._wideband_freqs[self._wideband_isort]
 
     @property
     def residuals(self):
-        """Return array of wideband residuals in seconds or dmu."""
+        """An array containing the TOA residuals (s) and the DM residuals (pc/cm3)."""
         return self._wideband_residuals[self._wideband_isort]
 
     @property
     def Mmat(self):
-        """Return ntoa x npar design matrix."""
+        """Design matrix containing the derivatives of the TOA and DM residuals w.r.t. the
+        timing model parameters. Also includes derivatives w.r.t. DMJUMPs."""
         return self._wideband_designmatrix[self._wideband_isort, :]
 
     @property
     def dmerrs(self):
+        """An array containing the DM measurement uncertainties (pc/cm3)."""
         return self._dm_errors
