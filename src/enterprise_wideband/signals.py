@@ -35,7 +35,7 @@ def WidebandMeasurementNoise(
     dmefac=parameter.Uniform(0.5, 1.5),
     log10_dmequad=parameter.Constant(-18),
     selection=Selection(no_selection),
-    name="",
+    name="wideband_white_noise",
 ):
     """Class factory for EFAC+EQUAD and DMEFAC+DMEQUAD measurement noise
     (with tempo/tempo2/pint parameter convention, variance = efac^2 (toaerr^2 + t2equad^2)).
