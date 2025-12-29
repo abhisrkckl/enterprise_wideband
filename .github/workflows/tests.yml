@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  pytest:
+  enterprise_wideband-test:
     runs-on: ubuntu-latest
 
     strategy:
