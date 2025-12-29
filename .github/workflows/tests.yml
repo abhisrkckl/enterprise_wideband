@@ -38,7 +38,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           pytest tests \
-            --cov=abcd \
+            --cov=enterprise_wideband \
             --cov-report=term-missing \
             --cov-report=xml \
             --verbose
