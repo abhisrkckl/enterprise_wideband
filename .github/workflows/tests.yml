@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  test-enterprise_wideband:
+  pytest:
     runs-on: ubuntu-latest
 
     strategy:
@@ -18,18 +18,35 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python with pip cache
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: |
+            pyproject.toml
+            setup.py
+            requirements.txt
 
       - name: Install dependencies
         run: |
           sudo apt install libsuitesparse-dev
           python -m pip install --upgrade pip
           pip install -e .
-          pip install pytest
+          pip install pytest pytest-cov
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          pytest tests
+          pytest tests \
+            --cov=abcd \
+            --cov-report=term-missing \
+            --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          flags: unittests
+          name: codecov-${{ matrix.python-version }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
