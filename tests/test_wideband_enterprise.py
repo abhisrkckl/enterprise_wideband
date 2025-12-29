@@ -1,12 +1,13 @@
 import numpy as np
 import pytest
 from enterprise.signals.parameter import Uniform
-from enterprise_wideband.pulsar import WidebandPulsar
-from enterprise_wideband.signals import WidebandMeasurementNoise, WidebandTimingModel
 from enterprise.signals.selections import Selection, no_selection
 from enterprise.signals.signal_base import PTA
 from pint.config import examplefile
 from pint.models import get_model_and_toas
+
+from enterprise_wideband.pulsar import WidebandPulsar
+from enterprise_wideband.signals import WidebandMeasurementNoise, WidebandTimingModel
 
 
 @pytest.fixture(scope="module")
@@ -46,6 +47,7 @@ def test_white_noise(psr: WidebandPulsar):
         f"{psr.name}_log10_dmequad": -4.5,
     }
     assert len(wn_sig.get_ndiag(params)) == len(psr.toas)
+
 
 def test_simple_spna(psr: WidebandPulsar):
     tm = WidebandTimingModel()

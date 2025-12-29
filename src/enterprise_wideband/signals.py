@@ -3,13 +3,13 @@ import numpy as np
 from enterprise.signals import parameter
 from enterprise.signals.gp_signals import BasisGP, get_timing_model_basis
 from enterprise.signals.selections import Selection, no_selection
+from enterprise.signals.signal_base import function
 from enterprise.signals.utils import (
     createfourierdesignmatrix_dm,
     createfourierdesignmatrix_red,
     tm_prior,
 )
 from enterprise.signals.white_signals import WhiteNoise
-from enterprise.signals.signal_base import function
 from pint import DMconst, dmu
 
 
