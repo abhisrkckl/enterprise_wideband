@@ -1,7 +1,10 @@
+import numpy as np
 import pytest
 from enterprise.signals.parameter import Uniform
 from enterprise_wideband.pulsar import WidebandPulsar
 from enterprise_wideband.signals import WidebandMeasurementNoise, WidebandTimingModel
+from enterprise.signals.selections import Selection, no_selection
+from enterprise.signals.signal_base import PTA
 from pint.config import examplefile
 from pint.models import get_model_and_toas
 
@@ -17,7 +20,7 @@ def psr():
 def test_pulsar(psr: WidebandPulsar):
     assert len(psr.toaerrs) == len(psr.dmerrs)
     assert psr.Mmat.shape[0] == len(psr.toaerrs) * 2
-    assert len(psr.toaerrs) * 2 == len(psr.wideband_residuals)
+    assert len(psr.toaerrs) * 2 == len(psr.residuals)
 
 
 def test_timing_model(psr: WidebandPulsar):
@@ -44,3 +47,29 @@ def test_white_noise(psr: WidebandPulsar):
     }
     assert len(wn_sig.get_ndiag(params)) == len(psr.toas)
 
+def test_simple_spna(psr: WidebandPulsar):
+    tm = WidebandTimingModel()
+    wn = WidebandMeasurementNoise(
+        efac=Uniform(0.1, 2.5),
+        log10_t2equad=Uniform(-8, -4),
+        dmefac=Uniform(0.5, 1.5),
+        log10_dmequad=Uniform(-8, -3),
+        selection=Selection(no_selection),
+        name="white_noise",
+    )
+
+    model = tm + wn
+
+    pta = PTA([model(psr)])
+    assert len(pta.param_names) == 4
+
+    x0 = np.array([p.sample() for p in pta.params])
+    x0_dict = pta.map_params(x0)
+
+    n = pta.get_residuals()[0].size
+    p = pta.get_phiinv(x0_dict)[0].size
+    assert pta.get_ndiag(x0_dict)[0].size == n
+    assert pta.get_basis(x0_dict)[0].shape == (n, p)
+
+    assert np.isfinite(pta.get_lnprior(x0))
+    assert np.isfinite(pta.get_lnlikelihood(x0))

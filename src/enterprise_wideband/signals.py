@@ -91,7 +91,7 @@ def createfourierdesignmatrix_red_wideband(
     Ft, Ffreqs = createfourierdesignmatrix_red(
         toas, nmodes, Tspan, logf, fmin, fmax, pshift, modes, pseed
     )
-    Ft[Ft.shape[0]:, :] = 0
+    Ft[Ft.shape[0] :, :] = 0
     return Ft, Ffreqs
 
 

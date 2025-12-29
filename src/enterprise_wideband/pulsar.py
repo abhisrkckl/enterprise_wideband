@@ -38,8 +38,8 @@ class WidebandPulsar(PintPulsar):
         return self._wideband_toas[self._wideband_isort]
 
     @property
-    def wideband_residuals(self):
-        """Return array of residuals in seconds."""
+    def residuals(self):
+        """Return array of wideband residuals in seconds or dmu."""
         return self._wideband_residuals[self._wideband_isort]
 
     @property
