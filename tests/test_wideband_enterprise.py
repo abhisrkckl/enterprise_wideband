@@ -39,10 +39,11 @@ def test_timing_model(psr: WidebandPulsar):
 
 def test_white_noise(psr: WidebandPulsar):
     wn = WidebandMeasurementNoise(
-        log10_t2equad=Uniform(-8, -5), log10_dmequad=Uniform(-6, -3)
+        log10_t2equad=Uniform(-8, -5),
+        log10_dmequad=Uniform(-6, -3),
     )
     wn_sig = wn(psr)
-    assert wn_sig.name == f"{psr.name}_wideband_measurement_noise"
+    assert wn_sig.name == f"{psr.name}_wideband_white_noise"
     assert len(wn_sig.params) == 4
     params = {
         f"{psr.name}_efac": 1.0,

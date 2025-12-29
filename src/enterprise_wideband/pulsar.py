@@ -8,8 +8,9 @@ from pint.toa import TOAs
 
 class WidebandPulsar(PintPulsar):
     """Represents a wideband pulsar dataset read using PINT. The residuals, measurement
-    uncertainties, and the design matrix also include elements corresponding to the wideband 
+    uncertainties, and the design matrix also include elements corresponding to the wideband
     DM measurements."""
+
     def __init__(
         self,
         toas: TOAs,

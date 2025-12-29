@@ -38,7 +38,7 @@ def WidebandMeasurementNoise(
     name="wideband_white_noise",
 ):
     """Class factory for wideband measurement noise. The TOA uncertainties are modified by EFACs and EQUADS,
-    and the DM uncertainties are modified by DMEFACs and DMEQUADs. Follows the tempo2/pint convention, 
+    and the DM uncertainties are modified by DMEFACs and DMEQUADs. Follows the tempo2/pint convention,
     where variance = efac^2 (toaerr^2 + t2equad^2).
     """
 
