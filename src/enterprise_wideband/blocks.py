@@ -10,7 +10,7 @@ from .signals import (
 
 def achromatic_red_noise_powerlaw_block(
     log10_A: Parameter = Uniform(-18, -12),
-    gamma: Parameter = Uniform(0, 7),
+    gamma: Parameter = Uniform(1, 7),
     components: int = 30,
 ):
     spectrum = powerlaw(log10_A=log10_A, gamma=gamma)
@@ -20,7 +20,7 @@ def achromatic_red_noise_powerlaw_block(
 
 def dm_noise_powerlaw_block(
     log10_A: Parameter = Uniform(-18, -12),
-    gamma: Parameter = Uniform(0, 7),
+    gamma: Parameter = Uniform(1, 7),
     components: int = 30,
 ):
     spectrum = powerlaw(log10_A=log10_A, gamma=gamma)
