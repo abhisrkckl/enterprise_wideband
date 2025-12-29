@@ -14,7 +14,7 @@ from pint import DMconst, dmu
 
 
 def WidebandTimingModel(name="linear_wideband_timing_model"):
-    """Class factory for marginalized linear timing model signals."""
+    """Class factory for marginalized linear timing model for wideband data."""
 
     basis = get_timing_model_basis(use_svd=False, normed=True, idx_exclude=None)
     prior = tm_prior()
@@ -37,8 +37,9 @@ def WidebandMeasurementNoise(
     selection=Selection(no_selection),
     name="wideband_white_noise",
 ):
-    """Class factory for EFAC+EQUAD and DMEFAC+DMEQUAD measurement noise
-    (with tempo/tempo2/pint parameter convention, variance = efac^2 (toaerr^2 + t2equad^2)).
+    """Class factory for wideband measurement noise. The TOA uncertainties are modified by EFACs and EQUADS,
+    and the DM uncertainties are modified by DMEFACs and DMEQUADs. Follows the tempo2/pint convention, 
+    where variance = efac^2 (toaerr^2 + t2equad^2).
     """
 
     varianceFunction = wideband_ndiag(
@@ -88,6 +89,8 @@ def createfourierdesignmatrix_red_wideband(
     modes=None,
     pseed=None,
 ):
+    """Create achromatic red noise basis matrix for wideband data. The entries corresponding
+    to the DM measurements are zero."""
     Ft, Ffreqs = createfourierdesignmatrix_red(
         toas, nmodes, Tspan, logf, fmin, fmax, pshift, modes, pseed
     )
@@ -108,6 +111,7 @@ def createfourierdesignmatrix_dm_wideband(
     fmax=None,
     modes=None,
 ):
+    """Create DM noise basis matrix for wideband data."""
     DMconst_value = DMconst.to_value(u.s * u.MHz**2 / dmu)
     Ft, Ffreqs = createfourierdesignmatrix_dm(
         toas, freqs, nmodes, Tspan, pshift, fref, logf, fmin, fmax, modes
