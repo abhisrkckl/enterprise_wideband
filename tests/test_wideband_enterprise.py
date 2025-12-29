@@ -6,6 +6,10 @@ from enterprise.signals.signal_base import PTA
 from pint.config import examplefile
 from pint.models import get_model_and_toas
 
+from enterprise_wideband.blocks import (
+    achromatic_red_noise_powerlaw_block,
+    dm_noise_powerlaw_block,
+)
 from enterprise_wideband.pulsar import WidebandPulsar
 from enterprise_wideband.signals import WidebandMeasurementNoise, WidebandTimingModel
 
@@ -47,6 +51,28 @@ def test_white_noise(psr: WidebandPulsar):
         f"{psr.name}_log10_dmequad": -4.5,
     }
     assert len(wn_sig.get_ndiag(params)) == len(psr.toas)
+
+
+def test_achromatic_red_noise(psr: WidebandPulsar):
+    arn = achromatic_red_noise_powerlaw_block()
+    arn_sig = arn(psr)
+    basis = arn_sig.get_basis()
+    ntoas = len(psr.toas) // 2
+    assert basis.shape[0] == ntoas * 2
+    assert not np.all(basis[:ntoas, :] == 0)
+    assert np.all(basis[ntoas:, :] == 0)
+    assert len(arn_sig.params) == 2
+
+
+def test_dm_noise(psr: WidebandPulsar):
+    dmn = dm_noise_powerlaw_block()
+    dmn_sig = dmn(psr)
+    basis = dmn_sig.get_basis()
+    ntoas = len(psr.toas) // 2
+    assert basis.shape[0] == ntoas * 2
+    assert not np.all(basis[:ntoas, :] == 0)
+    assert not np.all(basis[ntoas:, :] == 0)
+    assert len(dmn_sig.params) == 2
 
 
 def test_simple_spna(psr: WidebandPulsar):

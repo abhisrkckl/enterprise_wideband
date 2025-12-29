@@ -33,9 +33,15 @@ class WidebandPulsar(PintPulsar):
 
         self._wideband_toas = np.append(self._toas, self._toas)
 
+        self._wideband_freqs = np.append(self._ssbfreqs, self._ssbfreqs)
+
     @property
     def toas(self):
         return self._wideband_toas[self._wideband_isort]
+
+    @property
+    def freqs(self):
+        return self._wideband_freqs[self._wideband_isort]
 
     @property
     def residuals(self):

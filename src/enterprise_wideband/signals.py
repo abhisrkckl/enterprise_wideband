@@ -91,7 +91,7 @@ def createfourierdesignmatrix_red_wideband(
     Ft, Ffreqs = createfourierdesignmatrix_red(
         toas, nmodes, Tspan, logf, fmin, fmax, pshift, modes, pseed
     )
-    Ft[Ft.shape[0] :, :] = 0
+    Ft[(len(toas) // 2) :, :] = 0
     return Ft, Ffreqs
 
 
@@ -112,5 +112,7 @@ def createfourierdesignmatrix_dm_wideband(
     Ft, Ffreqs = createfourierdesignmatrix_dm(
         toas, freqs, nmodes, Tspan, pshift, fref, logf, fmin, fmax, modes
     )
-    Ft[Ft.shape[0] :, :] *= (freqs**2 / DMconst_value)[:, None]
+    Ft[(len(toas) // 2) :, :] *= (freqs[(len(toas) // 2) :] ** 2 / DMconst_value)[
+        :, None
+    ]
     return Ft, Ffreqs
