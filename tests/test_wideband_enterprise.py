@@ -43,3 +43,4 @@ def test_white_noise(psr: WidebandPulsar):
         f"{psr.name}_log10_dmequad": -4.5,
     }
     assert len(wn_sig.get_ndiag(params)) == len(psr.toas)
+
