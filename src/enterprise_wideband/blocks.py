@@ -30,3 +30,15 @@ def dm_noise_powerlaw_block(
     spectrum = powerlaw(log10_A=log10_A, gamma=gamma)
     basis = createfourierdesignmatrix_dm_wideband(nmodes=components)
     return BasisGP(spectrum, basis, name="powerlaw_dm_noise")
+
+
+def solar_wind_noise_powerlaw_block(
+    log10_A: Parameter = Uniform(-18, -12),
+    gamma: Parameter = Uniform(1, 7),
+    components: int = 30,
+):
+    """Signal block for DM noise with a powerlaw spectrum.
+    Corresponds to PLDMNoise in PINT."""
+    spectrum = powerlaw(log10_A=log10_A, gamma=gamma)
+    basis = createfourierdesignmatrix_dm_wideband(nmodes=components)
+    return BasisGP(spectrum, basis, name="powerlaw_sw_noise")
