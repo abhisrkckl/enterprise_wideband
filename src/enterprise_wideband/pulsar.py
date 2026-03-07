@@ -39,6 +39,12 @@ class WidebandPulsar(PintPulsar):
 
         self._wideband_freqs = np.append(self._ssbfreqs, self._ssbfreqs)
 
+        self._wideband_sunssb = np.append(self._sunssb, self._sunssb, axis=0)
+
+        self._wideband_planetssb = np.append(self._planetssb, self._planetssb, axis=0)
+
+        self._wideband_pos_t = np.append(self._pos_t, self._pos_t, axis=0)
+
     @property
     def toas(self):
         """The MJD corresponding to each TOA. There are two measurements per TOA,
@@ -66,3 +72,15 @@ class WidebandPulsar(PintPulsar):
     def dmerrs(self):
         """An array containing the DM measurement uncertainties (pc/cm3)."""
         return self._dm_errors
+    
+    @property
+    def sunssb(self):
+        return self._wideband_sunssb
+    
+    @property
+    def planetssb(self):
+        return self._wideband_planetssb
+
+    @property
+    def pos_t(self):
+        return self._wideband_pos_t
