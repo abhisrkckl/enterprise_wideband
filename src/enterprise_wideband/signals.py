@@ -121,6 +121,7 @@ def createfourierdesignmatrix_dm_wideband(
     return Ft, Ffreqs
 
 
+@function
 def createfourierdesignmatrix_sw_wideband(
     toas,
     freqs,
