@@ -10,6 +10,9 @@ from enterprise.signals.utils import (
     tm_prior,
 )
 from enterprise.signals.white_signals import WhiteNoise
+from enterprise_extensions.chromatic.solar_wind import (
+    createfourierdesignmatrix_solar_dm,
+)
 from pint import DMconst, dmu
 
 
@@ -111,6 +114,31 @@ def createfourierdesignmatrix_dm_wideband(
     DMconst_value = DMconst.to_value(u.s * u.MHz**2 / dmu)
     Ft, Ffreqs = createfourierdesignmatrix_dm(
         toas, freqs, nmodes, Tspan, pshift, fref, logf, fmin, fmax, modes
+    )
+    Ft[(len(toas) // 2) :, :] *= (freqs[(len(toas) // 2) :] ** 2 / DMconst_value)[
+        :, None
+    ]
+    return Ft, Ffreqs
+
+
+@function
+def createfourierdesignmatrix_sw_wideband(
+    toas,
+    freqs,
+    planetssb,
+    sunssb,
+    pos_t,
+    modes=None,
+    nmodes=30,
+    Tspan=None,
+    logf=False,
+    fmin=None,
+    fmax=None,
+):
+    """Create Solar Wind basis matrix for wideband data."""
+    DMconst_value = DMconst.to_value(u.s * u.MHz**2 / dmu)
+    Ft, Ffreqs = createfourierdesignmatrix_solar_dm(
+        toas, freqs, planetssb, sunssb, pos_t, modes, nmodes, Tspan, logf, fmin, fmax
     )
     Ft[(len(toas) // 2) :, :] *= (freqs[(len(toas) // 2) :] ** 2 / DMconst_value)[
         :, None

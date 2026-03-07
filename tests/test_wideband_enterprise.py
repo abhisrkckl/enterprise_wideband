@@ -5,10 +5,13 @@ from enterprise.signals.selections import Selection, no_selection
 from enterprise.signals.signal_base import PTA
 from pint.config import examplefile
 from pint.models import get_model_and_toas
+from pint import DMconst, dmu
+from astropy import units as u
 
 from enterprise_wideband.blocks import (
     achromatic_red_noise_powerlaw_block,
     dm_noise_powerlaw_block,
+    solar_wind_noise_powerlaw_block,
 )
 from enterprise_wideband.pulsar import WidebandPulsar
 from enterprise_wideband.signals import WidebandMeasurementNoise, WidebandTimingModel
@@ -22,10 +25,16 @@ def psr():
     return WidebandPulsar(t, m)
 
 
+DMconst_value = DMconst.to_value(u.s * u.MHz**2 / dmu)
+
+
 def test_pulsar(psr: WidebandPulsar):
     assert len(psr.toaerrs) == len(psr.dmerrs)
     assert psr.Mmat.shape[0] == len(psr.toaerrs) * 2
     assert len(psr.toaerrs) * 2 == len(psr.residuals)
+    assert len(psr.freqs) == len(psr.residuals)
+    assert psr.sunssb.shape[0] == len(psr.residuals)
+    assert psr.planetssb.shape[0] == len(psr.residuals)
 
 
 def test_timing_model(psr: WidebandPulsar):
@@ -73,7 +82,26 @@ def test_dm_noise(psr: WidebandPulsar):
     assert basis.shape[0] == ntoas * 2
     assert not np.all(basis[:ntoas, :] == 0)
     assert not np.all(basis[ntoas:, :] == 0)
+    assert np.allclose(
+        basis[ntoas:, :] * DMconst_value / psr.freqs[ntoas:, None] ** 2,
+        basis[:ntoas, :],
+    )
     assert len(dmn_sig.params) == 2
+
+
+def test_sw_noise(psr: WidebandPulsar):
+    sw = solar_wind_noise_powerlaw_block()
+    sw_sig = sw(psr)
+    basis = sw_sig.get_basis()
+    ntoas = len(psr.toas) // 2
+    assert basis.shape[0] == ntoas * 2
+    assert not np.all(basis[:ntoas, :] == 0)
+    assert not np.all(basis[ntoas:, :] == 0)
+    assert np.allclose(
+        basis[ntoas:, :] * DMconst_value / psr.freqs[ntoas:, None] ** 2,
+        basis[:ntoas, :],
+    )
+    assert len(sw_sig.params) == 2
 
 
 def test_simple_spna(psr: WidebandPulsar):
@@ -116,11 +144,12 @@ def test_corrnoise_spna(psr: WidebandPulsar):
     )
     arn = achromatic_red_noise_powerlaw_block()
     dmn = dm_noise_powerlaw_block()
+    swn = solar_wind_noise_powerlaw_block()
 
-    model = tm + wn + arn + dmn
+    model = tm + wn + arn + dmn + swn
 
     pta = PTA([model(psr)])
-    assert len(pta.param_names) == 8
+    assert len(pta.param_names) == 10
 
     x0 = np.array([p.sample() for p in pta.params])
     x0_dict = pta.map_params(x0)
