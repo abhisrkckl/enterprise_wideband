@@ -5,6 +5,8 @@ from enterprise.signals.selections import Selection, no_selection
 from enterprise.signals.signal_base import PTA
 from pint.config import examplefile
 from pint.models import get_model_and_toas
+from pint import DMconst, dmu
+from astropy import units as u
 
 from enterprise_wideband.blocks import (
     achromatic_red_noise_powerlaw_block,
@@ -21,6 +23,9 @@ def psr():
     timfile = examplefile("test-wb-0.tim")
     m, t = get_model_and_toas(parfile, timfile, planets=True)
     return WidebandPulsar(t, m)
+
+
+DMconst_value = DMconst.to_value(u.s * u.MHz**2 / dmu)
 
 
 def test_pulsar(psr: WidebandPulsar):
@@ -74,6 +79,10 @@ def test_dm_noise(psr: WidebandPulsar):
     assert basis.shape[0] == ntoas * 2
     assert not np.all(basis[:ntoas, :] == 0)
     assert not np.all(basis[ntoas:, :] == 0)
+    assert np.allclose(
+        basis[ntoas:, :] * DMconst_value / psr.freqs[ntoas:, None] ** 2,
+        basis[:ntoas, :],
+    )
     assert len(dmn_sig.params) == 2
 
 
@@ -85,6 +94,10 @@ def test_sw_noise(psr: WidebandPulsar):
     assert basis.shape[0] == ntoas * 2
     assert not np.all(basis[:ntoas, :] == 0)
     assert not np.all(basis[ntoas:, :] == 0)
+    assert np.allclose(
+        basis[ntoas:, :] * DMconst_value / psr.freqs[ntoas:, None] ** 2,
+        basis[:ntoas, :],
+    )
     assert len(sw_sig.params) == 2
 
 
