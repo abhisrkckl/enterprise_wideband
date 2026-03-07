@@ -32,6 +32,9 @@ def test_pulsar(psr: WidebandPulsar):
     assert len(psr.toaerrs) == len(psr.dmerrs)
     assert psr.Mmat.shape[0] == len(psr.toaerrs) * 2
     assert len(psr.toaerrs) * 2 == len(psr.residuals)
+    assert len(psr.freqs) == len(psr.residuals)
+    assert psr.sunssb.shape[0] == len(psr.residuals)
+    assert psr.planetssb.shape[0] == len(psr.residuals)
 
 
 def test_timing_model(psr: WidebandPulsar):

@@ -43,7 +43,10 @@ class WidebandPulsar(PintPulsar):
 
         self._wideband_planetssb = np.append(self._planetssb, self._planetssb, axis=0)
 
-        self._wideband_pos_t = np.append(self._pos_t, self._pos_t, axis=0)
+        if len(self._pos_t.shape) == 1:
+            self._wideband_pos_t = np.ones((len(self._wideband_toas), len(self._pos_t)))
+        else:
+            self._wideband_pos_t = np.append(self._pos_t, self._pos_t, axis=0)
 
     @property
     def toas(self):
@@ -72,11 +75,11 @@ class WidebandPulsar(PintPulsar):
     def dmerrs(self):
         """An array containing the DM measurement uncertainties (pc/cm3)."""
         return self._dm_errors
-    
+
     @property
     def sunssb(self):
         return self._wideband_sunssb
-    
+
     @property
     def planetssb(self):
         return self._wideband_planetssb
