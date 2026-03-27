@@ -49,41 +49,41 @@ class WidebandPulsar(PintPulsar):
             self._wideband_pos_t = np.append(self._pos_t, self._pos_t, axis=0)
 
     @property
-    def toas(self):
+    def toas(self) -> np.ndarray:
         """The MJD corresponding to each TOA. There are two measurements per TOA,
         so this array contains two copies of the TOA epochs."""
         return self._wideband_toas[self._wideband_isort]
 
     @property
-    def freqs(self):
+    def freqs(self) -> np.ndarray:
         """The observing frequency corresponding to each TOA. There are to measurements
         per TOA, so this array contains two copies of the frequencies."""
         return self._wideband_freqs[self._wideband_isort]
 
     @property
-    def residuals(self):
+    def residuals(self) -> np.ndarray:
         """An array containing the TOA residuals (s) and the DM residuals (pc/cm3)."""
         return self._wideband_residuals[self._wideband_isort]
 
     @property
-    def Mmat(self):
+    def Mmat(self) -> np.ndarray:
         """Design matrix containing the derivatives of the TOA and DM residuals w.r.t. the
         timing model parameters. Also includes derivatives w.r.t. DMJUMPs."""
         return self._wideband_designmatrix[self._wideband_isort, :]
 
     @property
-    def dmerrs(self):
+    def dmerrs(self) -> np.ndarray:
         """An array containing the DM measurement uncertainties (pc/cm3)."""
         return self._dm_errors
 
     @property
-    def sunssb(self):
+    def sunssb(self) -> np.ndarray:
         return self._wideband_sunssb
 
     @property
-    def planetssb(self):
+    def planetssb(self) -> np.ndarray:
         return self._wideband_planetssb
 
     @property
-    def pos_t(self):
+    def pos_t(self) -> np.ndarray:
         return self._wideband_pos_t
