@@ -1,6 +1,7 @@
 import astropy.units as u
 import numpy as np
 from enterprise.signals import parameter
+from enterprise.signals.parameter import Parameter
 from enterprise.signals.gp_signals import BasisGP, get_timing_model_basis
 from enterprise.signals.selections import Selection, no_selection
 from enterprise.signals.signal_base import function
@@ -33,12 +34,12 @@ def WidebandTimingModel(name="linear_wideband_timing_model"):
 
 
 def WidebandMeasurementNoise(
-    efac=parameter.Uniform(0.5, 1.5),
-    log10_t2equad=parameter.Constant(-18),
-    dmefac=parameter.Uniform(0.5, 1.5),
-    log10_dmequad=parameter.Constant(-18),
+    efac: Parameter = parameter.Uniform(0.5, 1.5),
+    log10_t2equad: Parameter = parameter.Constant(-18),
+    dmefac: Parameter = parameter.Uniform(0.5, 1.5),
+    log10_dmequad: Parameter = parameter.Constant(-18),
     selection=Selection(no_selection),
-    name="wideband_white_noise",
+    name: str = "wideband_white_noise",
 ):
     """Class factory for wideband measurement noise. The TOA uncertainties are modified by EFACs and EQUADS,
     and the DM uncertainties are modified by DMEFACs and DMEQUADs. Follows the tempo2/pint convention,
@@ -64,6 +65,7 @@ def WidebandMeasurementNoise(
 def wideband_ndiag(
     toaerrs, dmerrs, efac=1.0, log10_t2equad=-8, dmefac=1.0, log10_dmequad=-8
 ):
+    """Create diagonal white noise covariance matrix for wideband data."""
     equad = 10**log10_t2equad
     dmequad = 10**log10_dmequad
 
