@@ -38,7 +38,7 @@ def WidebandMeasurementNoise(
     log10_t2equad: Parameter = parameter.Constant(-18),
     dmefac: Parameter = parameter.Uniform(0.5, 1.5),
     log10_dmequad: Parameter = parameter.Constant(-18),
-    selection = Selection(no_selection),
+    selection=Selection(no_selection),
     name: str = "wideband_white_noise",
 ):
     """Class factory for wideband measurement noise. The TOA uncertainties are modified by EFACs and EQUADS,
