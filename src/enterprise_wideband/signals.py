@@ -64,6 +64,7 @@ def WidebandMeasurementNoise(
 def wideband_ndiag(
     toaerrs, dmerrs, efac=1.0, log10_t2equad=-8, dmefac=1.0, log10_dmequad=-8
 ):
+    """Create diagonal white noise covariance matrix for wideband data."""
     equad = 10**log10_t2equad
     dmequad = 10**log10_dmequad
 
