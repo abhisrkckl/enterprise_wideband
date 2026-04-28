@@ -161,3 +161,44 @@ def test_corrnoise_spna(psr: WidebandPulsar):
 
     assert np.isfinite(pta.get_lnprior(x0))
     assert np.isfinite(pta.get_lnlikelihood(x0))
+
+
+def test_dropout_arn(psr: WidebandPulsar):
+    arn = achromatic_red_noise_powerlaw_block(dropbin=True)
+    arn_sig = arn(psr)
+    basis = arn_sig.get_basis()
+    ntoas = len(psr.toas) // 2
+    assert basis.shape[0] == ntoas * 2
+    assert not np.all(basis[:ntoas, :] == 0)
+    assert np.all(basis[ntoas:, :] == 0)
+    assert len(arn_sig.params) == 3
+
+
+def test_dropout_dmn(psr: WidebandPulsar):
+    dmn = dm_noise_powerlaw_block(dropbin=True)
+    dmn_sig = dmn(psr)
+    basis = dmn_sig.get_basis()
+    ntoas = len(psr.toas) // 2
+    assert basis.shape[0] == ntoas * 2
+    assert not np.all(basis[:ntoas, :] == 0)
+    assert not np.all(basis[ntoas:, :] == 0)
+    assert np.allclose(
+        basis[ntoas:, :] * DMconst_value / psr.freqs[ntoas:, None] ** 2,
+        basis[:ntoas, :],
+    )
+    assert len(dmn_sig.params) == 3
+
+
+def test_dropout_swn(psr: WidebandPulsar):
+    sw = solar_wind_noise_powerlaw_block(dropbin=True)
+    sw_sig = sw(psr)
+    basis = sw_sig.get_basis()
+    ntoas = len(psr.toas) // 2
+    assert basis.shape[0] == ntoas * 2
+    assert not np.all(basis[:ntoas, :] == 0)
+    assert not np.all(basis[ntoas:, :] == 0)
+    assert np.allclose(
+        basis[ntoas:, :] * DMconst_value / psr.freqs[ntoas:, None] ** 2,
+        basis[:ntoas, :],
+    )
+    assert len(sw_sig.params) == 3
