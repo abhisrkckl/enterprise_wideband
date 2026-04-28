@@ -202,3 +202,34 @@ def test_dropout_swn(psr: WidebandPulsar):
         basis[:ntoas, :],
     )
     assert len(sw_sig.params) == 3
+
+
+def test_corrnoise_spna_dropout(psr: WidebandPulsar):
+    tm = WidebandTimingModel()
+    wn = WidebandMeasurementNoise(
+        efac=Uniform(0.1, 2.5),
+        log10_t2equad=Uniform(-8, -4),
+        dmefac=Uniform(0.5, 1.5),
+        log10_dmequad=Uniform(-8, -3),
+        selection=Selection(no_selection),
+        name="white_noise",
+    )
+    arn = achromatic_red_noise_powerlaw_block(dropbin=True)
+    dmn = dm_noise_powerlaw_block(dropbin=True)
+    swn = solar_wind_noise_powerlaw_block(dropbin=True)
+
+    model = tm + wn + arn + dmn + swn
+
+    pta = PTA([model(psr)])
+    assert len(pta.param_names) == 13
+
+    x0 = np.array([p.sample() for p in pta.params])
+    x0_dict = pta.map_params(x0)
+
+    n = pta.get_residuals()[0].size
+    p = pta.get_phiinv(x0_dict)[0].size
+    assert pta.get_ndiag(x0_dict)[0].size == n
+    assert pta.get_basis(x0_dict)[0].shape == (n, p)
+
+    assert np.isfinite(pta.get_lnprior(x0))
+    assert np.isfinite(pta.get_lnlikelihood(x0))
