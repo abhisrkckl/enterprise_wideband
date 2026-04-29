@@ -161,3 +161,75 @@ def test_corrnoise_spna(psr: WidebandPulsar):
 
     assert np.isfinite(pta.get_lnprior(x0))
     assert np.isfinite(pta.get_lnlikelihood(x0))
+
+
+def test_dropout_arn(psr: WidebandPulsar):
+    arn = achromatic_red_noise_powerlaw_block(dropbin=True)
+    arn_sig = arn(psr)
+    basis = arn_sig.get_basis()
+    ntoas = len(psr.toas) // 2
+    assert basis.shape[0] == ntoas * 2
+    assert not np.all(basis[:ntoas, :] == 0)
+    assert np.all(basis[ntoas:, :] == 0)
+    assert len(arn_sig.params) == 3
+
+
+def test_dropout_dmn(psr: WidebandPulsar):
+    dmn = dm_noise_powerlaw_block(dropbin=True)
+    dmn_sig = dmn(psr)
+    basis = dmn_sig.get_basis()
+    ntoas = len(psr.toas) // 2
+    assert basis.shape[0] == ntoas * 2
+    assert not np.all(basis[:ntoas, :] == 0)
+    assert not np.all(basis[ntoas:, :] == 0)
+    assert np.allclose(
+        basis[ntoas:, :] * DMconst_value / psr.freqs[ntoas:, None] ** 2,
+        basis[:ntoas, :],
+    )
+    assert len(dmn_sig.params) == 3
+
+
+def test_dropout_swn(psr: WidebandPulsar):
+    sw = solar_wind_noise_powerlaw_block(dropbin=True)
+    sw_sig = sw(psr)
+    basis = sw_sig.get_basis()
+    ntoas = len(psr.toas) // 2
+    assert basis.shape[0] == ntoas * 2
+    assert not np.all(basis[:ntoas, :] == 0)
+    assert not np.all(basis[ntoas:, :] == 0)
+    assert np.allclose(
+        basis[ntoas:, :] * DMconst_value / psr.freqs[ntoas:, None] ** 2,
+        basis[:ntoas, :],
+    )
+    assert len(sw_sig.params) == 3
+
+
+def test_corrnoise_spna_dropout(psr: WidebandPulsar):
+    tm = WidebandTimingModel()
+    wn = WidebandMeasurementNoise(
+        efac=Uniform(0.1, 2.5),
+        log10_t2equad=Uniform(-8, -4),
+        dmefac=Uniform(0.5, 1.5),
+        log10_dmequad=Uniform(-8, -3),
+        selection=Selection(no_selection),
+        name="white_noise",
+    )
+    arn = achromatic_red_noise_powerlaw_block(dropbin=True)
+    dmn = dm_noise_powerlaw_block(dropbin=True)
+    swn = solar_wind_noise_powerlaw_block(dropbin=True)
+
+    model = tm + wn + arn + dmn + swn
+
+    pta = PTA([model(psr)])
+    assert len(pta.param_names) == 13
+
+    x0 = np.array([p.sample() for p in pta.params])
+    x0_dict = pta.map_params(x0)
+
+    n = pta.get_residuals()[0].size
+    p = pta.get_phiinv(x0_dict)[0].size
+    assert pta.get_ndiag(x0_dict)[0].size == n
+    assert pta.get_basis(x0_dict)[0].shape == (n, p)
+
+    assert np.isfinite(pta.get_lnprior(x0))
+    assert np.isfinite(pta.get_lnlikelihood(x0))
