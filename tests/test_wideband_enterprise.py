@@ -1,10 +1,13 @@
+from io import StringIO
+
 import numpy as np
 import pytest
 from enterprise.signals.parameter import Uniform
-from enterprise.signals.selections import Selection, no_selection
+from enterprise.signals.selections import Selection, no_selection, by_backend
 from enterprise.signals.signal_base import PTA
 from pint.config import examplefile
-from pint.models import get_model_and_toas
+from pint.models import get_model, get_model_and_toas
+from pint.simulation import make_fake_toas_uniform
 from pint import DMconst, dmu
 from astropy import units as u
 
@@ -22,6 +25,69 @@ def psr():
     parfile = examplefile("test-wb-0.par")
     timfile = examplefile("test-wb-0.tim")
     m, t = get_model_and_toas(parfile, timfile, planets=True)
+    return WidebandPulsar(t, m)
+
+
+@pytest.fixture(scope="module")
+def psr2():
+    par = """
+        PSR                            J1234+5678
+        EPHEM                               DE440
+        CLOCK                        TT(BIPM2019)
+        UNITS                                 TDB
+        DILATEFREQ                              N
+        DMDATA                                  N
+        NTOA                                    0
+        RAJ                     12:34:56.78900000 1 0.00000000000000000000
+        DECJ                    56:00:00.12300000 1 0.00000000000000000000
+        PMRA                                1e-10 0 0.0
+        PMDEC                               1e-10 0 0.0
+        PX                                    0.0
+        POSEPOCH           55000.0000000000000000
+        F0                                  100.0 1 0.0
+        F1                                 -1e-15 1 0.0
+        PEPOCH             55000.0000000000000000
+        TNDMAMP                             -13.5
+        TNDMGAM                               2.5
+        TNDMC                                  50
+        TNREDAMP                            -13.0
+        TNREDGAM                              3.0
+        TNREDC                                 30
+        PLANET_SHAPIRO                          Y
+        DM                                   10.0 1 0.0
+        DMEPOCH            55000.0000000000000000
+        TZRMJD             55000.2000400083124987
+        TZRSITE                               ssb
+        TZRFRQ                                inf
+    """
+    m = get_model(StringIO(par))
+    tsim1 = make_fake_toas_uniform(
+        model=m,
+        startMJD=54000,
+        endMJD=56000,
+        ntoas=5000,
+        error=0.5 * u.us,
+        freq=1400 * u.MHz,
+        add_noise=True,
+        add_correlated_noise=True,
+        wideband=True,
+        flags={"f": "foo"},
+        subtract_mean=False,
+    )
+    tsim2 = make_fake_toas_uniform(
+        model=m,
+        startMJD=54000,
+        endMJD=56000,
+        ntoas=5000,
+        error=0.5 * u.us,
+        freq=1000 * u.MHz,
+        add_noise=True,
+        add_correlated_noise=True,
+        wideband=True,
+        flags={"f": "bar"},
+        subtract_mean=False,
+    )
+    t = tsim1 + tsim2
     return WidebandPulsar(t, m)
 
 
@@ -232,4 +298,28 @@ def test_corrnoise_spna_dropout(psr: WidebandPulsar):
     assert pta.get_basis(x0_dict)[0].shape == (n, p)
 
     assert np.isfinite(pta.get_lnprior(x0))
+    assert np.isfinite(pta.get_lnlikelihood(x0))
+
+
+def test_backend_selection(psr2: WidebandPulsar):
+    assert len(psr2.backend_flags) == len(psr2.toas)
+
+    tm = WidebandTimingModel()
+    wn = WidebandMeasurementNoise(
+        efac=Uniform(0.1, 2.5),
+        log10_t2equad=Uniform(-8, -4),
+        dmefac=Uniform(0.5, 1.5),
+        log10_dmequad=Uniform(-8, -3),
+        selection=Selection(by_backend),
+    )
+    arn = achromatic_red_noise_powerlaw_block()
+    dmn = dm_noise_powerlaw_block()
+
+    model = tm + wn + arn + dmn
+
+    pta = PTA([model(psr2)])
+
+    assert len(pta.param_names) == 12
+
+    x0 = np.array([p.sample() for p in pta.params])
     assert np.isfinite(pta.get_lnlikelihood(x0))
