@@ -87,3 +87,9 @@ class WidebandPulsar(PintPulsar):
     @property
     def pos_t(self) -> np.ndarray:
         return self._wideband_pos_t
+    
+    @property
+    def backend_flags(self) -> np.ndarray:
+        """An array containing the backend flags for each TOA. There are two measurements
+        per TOA, so this array contains two copies of the backend flags."""
+        return np.append(super().backend_flags, super().backend_flags)
