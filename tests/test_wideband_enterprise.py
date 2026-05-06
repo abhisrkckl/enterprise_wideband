@@ -18,6 +18,7 @@ from enterprise_wideband.blocks import (
 )
 from enterprise_wideband.pulsar import WidebandPulsar
 from enterprise_wideband.signals import WidebandMeasurementNoise, WidebandTimingModel
+from enterprise_wideband.selection import by_groups
 
 
 @pytest.fixture(scope="module")
@@ -71,7 +72,7 @@ def psr2():
         add_noise=True,
         add_correlated_noise=True,
         wideband=True,
-        flags={"f": "foo"},
+        flags={"f": "foo", "group": "g1"},
         subtract_mean=False,
     )
     tsim2 = make_fake_toas_uniform(
@@ -84,7 +85,7 @@ def psr2():
         add_noise=True,
         add_correlated_noise=True,
         wideband=True,
-        flags={"f": "bar"},
+        flags={"f": "bar", "group": "g2"},
         subtract_mean=False,
     )
     t = tsim1 + tsim2
@@ -311,6 +312,30 @@ def test_backend_selection(psr2: WidebandPulsar):
         dmefac=Uniform(0.5, 1.5),
         log10_dmequad=Uniform(-8, -3),
         selection=Selection(by_backend),
+    )
+    arn = achromatic_red_noise_powerlaw_block()
+    dmn = dm_noise_powerlaw_block()
+
+    model = tm + wn + arn + dmn
+
+    pta = PTA([model(psr2)])
+
+    assert len(pta.param_names) == 12
+
+    x0 = np.array([p.sample() for p in pta.params])
+    assert np.isfinite(pta.get_lnlikelihood(x0))
+
+
+def test_group_selection(psr2: WidebandPulsar):
+    assert len(psr2.backend_flags) == len(psr2.toas)
+
+    tm = WidebandTimingModel()
+    wn = WidebandMeasurementNoise(
+        efac=Uniform(0.1, 2.5),
+        log10_t2equad=Uniform(-8, -4),
+        dmefac=Uniform(0.5, 1.5),
+        log10_dmequad=Uniform(-8, -3),
+        selection=Selection(by_groups),
     )
     arn = achromatic_red_noise_powerlaw_block()
     dmn = dm_noise_powerlaw_block()

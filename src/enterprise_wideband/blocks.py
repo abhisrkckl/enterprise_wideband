@@ -40,9 +40,7 @@ def achromatic_red_noise_powerlaw_block(
 ):
     """Signal block for achromatic red noise with a powerlaw spectrum.
     Corresponds to PLRedNoise in PINT."""
-    spectrum = get_powerlaw_spectrum(
-        log10_A, gamma, components, dropbin, dropbin_min
-    )
+    spectrum = get_powerlaw_spectrum(log10_A, gamma, components, dropbin, dropbin_min)
     basis = createfourierdesignmatrix_red_wideband(nmodes=components)
     return BasisGP(spectrum, basis, name=name)
 
@@ -57,9 +55,7 @@ def dm_noise_powerlaw_block(
 ):
     """Signal block for DM noise with a powerlaw spectrum.
     Corresponds to PLDMNoise in PINT."""
-    spectrum = get_powerlaw_spectrum(
-        log10_A, gamma, components, dropbin, dropbin_min
-    )
+    spectrum = get_powerlaw_spectrum(log10_A, gamma, components, dropbin, dropbin_min)
     basis = createfourierdesignmatrix_dm_wideband(nmodes=components)
     return BasisGP(spectrum, basis, name=name)
 
@@ -74,8 +70,6 @@ def solar_wind_noise_powerlaw_block(
 ):
     """Signal block for DM noise with a powerlaw spectrum.
     Corresponds to PLDMNoise in PINT."""
-    spectrum = get_powerlaw_spectrum(
-        log10_A, gamma, components, dropbin, dropbin_min
-    )
+    spectrum = get_powerlaw_spectrum(log10_A, gamma, components, dropbin, dropbin_min)
     basis = createfourierdesignmatrix_sw_wideband(nmodes=components)
     return BasisGP(spectrum, basis, name=name)
