@@ -17,13 +17,13 @@ from enterprise_extensions.chromatic.solar_wind import (
 from pint import DMconst, dmu
 
 
-def WidebandTimingModel(name="linear_wideband_timing_model"):
+def WidebandTimingModel(use_svd=True, normed=True, coefficients=False, name="linear_wideband_timing_model"):
     """Class factory for marginalized linear timing model for wideband data."""
 
-    basis = get_timing_model_basis(use_svd=False, normed=True, idx_exclude=None)
+    basis = get_timing_model_basis(use_svd=use_svd, normed=normed, idx_exclude=None)
     prior = tm_prior()
 
-    BaseClass = BasisGP(prior, basis, coefficients=False, name=name)
+    BaseClass = BasisGP(prior, basis, coefficients=coefficients, name=name)
 
     class TimingModel(BaseClass):
         signal_type = "basis"
